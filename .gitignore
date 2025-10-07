@@ -30,3 +30,6 @@ simple-ad/
 # Documentation files
 playbook.md
 build_README.md
+
+# Progress tracking
+PROGRESS_LOG.md
