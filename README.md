@@ -220,11 +220,6 @@ safe_mode_password = "MiSafeModePassword123!"
 4. Push a la rama
 5. Abre un Pull Request
 
-## 📄 Documentación Adicional
-
-- Ver `build_README.md` para documentación completa del proyecto
-- Ver `playbook.md` para el playbook arquitectónico detallado
-
 ## 📄 Licencia
 
 Este proyecto está bajo la Licencia MIT - ver el archivo [LICENSE](LICENSE) para detalles.
