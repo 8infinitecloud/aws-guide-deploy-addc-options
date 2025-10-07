@@ -15,7 +15,7 @@ on:
 
 jobs:
   setup:
-    name: Create S3 Bucket and DynamoDB Table
+    name: Create S3 Bucket
     runs-on: ubuntu-latest
     
     steps:
@@ -43,21 +43,4 @@ jobs:
           echo "✅ S3 bucket created: ${{ inputs.terraform_bucket }}"
         else
           echo "✅ S3 bucket already exists: ${{ inputs.terraform_bucket }}"
-        fi
-    
-    - name: Create DynamoDB table
-      run: |
-        if ! aws dynamodb describe-table --table-name terraform-state-lock --region ${{ inputs.aws_region }} 2>/dev/null; then
-          aws dynamodb create-table \
-            --table-name terraform-state-lock \
-            --attribute-definitions AttributeName=LockID,AttributeType=S \
-            --key-schema AttributeName=LockID,KeyType=HASH \
-            --provisioned-throughput ReadCapacityUnits=5,WriteCapacityUnits=5 \
-            --region ${{ inputs.aws_region }}
-          
-          echo "⏳ Waiting for DynamoDB table to be active..."
-          aws dynamodb wait table-exists --table-name terraform-state-lock --region ${{ inputs.aws_region }}
-          echo "✅ DynamoDB table created: terraform-state-lock"
-        else
-          echo "✅ DynamoDB table already exists: terraform-state-lock"
         fi

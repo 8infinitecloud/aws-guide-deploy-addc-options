@@ -21,11 +21,6 @@ on:
         required: true
         default: 'us-east-1'
         type: string
-      skip_lock:
-        description: 'Skip state locking (if DynamoDB table missing)'
-        required: false
-        default: false
-        type: boolean
 
 env:
   TF_VAR_aws_region: ${{ inputs.aws_region }}
@@ -60,11 +55,10 @@ jobs:
         cat > backend.tf << EOF
         terraform {
           backend "s3" {
-            bucket         = "${{ inputs.terraform_bucket }}"
-            key            = "infrastructure-ad/terraform.tfstate"
-            region         = "${{ inputs.aws_region }}"
-            encrypt        = true
-            dynamodb_table = "terraform-state-lock"
+            bucket  = "${{ inputs.terraform_bucket }}"
+            key     = "infrastructure-ad/terraform.tfstate"
+            region  = "${{ inputs.aws_region }}"
+            encrypt = true
           }
         }
         EOF
@@ -77,27 +71,12 @@ jobs:
     
     - name: Terraform Plan
       if: inputs.action == 'plan'
-      run: |
-        if [ "${{ inputs.skip_lock }}" = "true" ]; then
-          terraform plan -var-file="terraform.tfvars" -lock=false
-        else
-          terraform plan -var-file="terraform.tfvars"
-        fi
+      run: terraform plan -var-file="terraform.tfvars"
     
     - name: Terraform Apply
       if: inputs.action == 'apply'
-      run: |
-        if [ "${{ inputs.skip_lock }}" = "true" ]; then
-          terraform apply -var-file="terraform.tfvars" -auto-approve -lock=false
-        else
-          terraform apply -var-file="terraform.tfvars" -auto-approve
-        fi
+      run: terraform apply -var-file="terraform.tfvars" -auto-approve
     
     - name: Terraform Destroy
       if: inputs.action == 'destroy'
-      run: |
-        if [ "${{ inputs.skip_lock }}" = "true" ]; then
-          terraform destroy -var-file="terraform.tfvars" -auto-approve -lock=false
-        else
-          terraform destroy -var-file="terraform.tfvars" -auto-approve
-        fi
+      run: terraform destroy -var-file="terraform.tfvars" -auto-approve

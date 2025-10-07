@@ -16,16 +16,21 @@ AWS_SECRET_ACCESS_KEY = your-aws-secret-access-key
 
 Before running the workflow, create:
 
-1. **S3 Bucket** for Terraform state
-2. **DynamoDB Table** named `terraform-state-lock` with partition key `LockID` (String)
-3. **EC2 Key Pair** in your target region
+1. **S3 Bucket** for Terraform state (use Setup AWS Resources workflow)
+2. **EC2 Key Pair** in your target region
 
 ## Usage
 
+### 1. Setup AWS Resources (First Time)
 1. Go to **Actions** tab in GitHub
-2. Select **Infrastructure AD Deployment**
+2. Select **Setup AWS Resources**
 3. Click **Run workflow**
-4. Fill in the parameters:
+4. Fill in the S3 bucket name and region
+
+### 2. Deploy Infrastructure
+1. Select **Infrastructure AD Deployment**
+2. Click **Run workflow**
+3. Fill in the parameters:
    - **Action**: plan/apply/destroy
    - **Terraform bucket**: Your S3 bucket name
    - **AWS region**: Target AWS region
@@ -35,3 +40,9 @@ Before running the workflow, create:
 - **Plan**: Review changes without applying
 - **Apply**: Deploy infrastructure
 - **Destroy**: Remove all resources
+
+## State Management
+
+- Uses **S3 only** for state storage
+- No DynamoDB locking (simplified for demo purposes)
+- State files encrypted in S3
