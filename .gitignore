@@ -4,6 +4,8 @@
 *.tfvars
 !*.tfvars.example
 !infrastructure-ad/terraform.tfvars
+!ec2-ad/terraform.tfvars
+!client-ad/terraform.tfvars
 .terraform/
 .terraform.lock.hcl
 crash.log
