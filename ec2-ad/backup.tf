@@ -55,8 +55,4 @@ resource "aws_backup_selection" "dc_backup_selection" {
   plan_id      = aws_backup_plan.dc_backup_plan.id
 
   resources = aws_instance.domain_controller[*].arn
-
-  tags = {
-    Name = "${var.project_name}-dc-backup-selection"
-  }
 }
