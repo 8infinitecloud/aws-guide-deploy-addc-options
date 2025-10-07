@@ -20,3 +20,8 @@ Thumbs.db
 
 # Logs
 *.log
+
+# Other AD implementations (will be separate repos)
+managed-ad/
+connector-ad/
+simple-ad/
