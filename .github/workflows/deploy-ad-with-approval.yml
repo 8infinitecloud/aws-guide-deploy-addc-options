@@ -1,8 +1,19 @@
-name: Infrastructure AD with Approval
+name: Deploy AD with Approval
 
 on:
   workflow_dispatch:
     inputs:
+      ad_module:
+        description: 'AD module to deploy'
+        required: true
+        type: choice
+        options:
+        - infrastructure-ad
+        - ec2-ad
+        - client-ad
+        - managed-ad
+        - connector-ad
+        - simple-ad
       terraform_bucket:
         description: 'S3 bucket for Terraform state'
         required: true
@@ -23,11 +34,11 @@ env:
 
 jobs:
   plan:
-    name: Terraform Plan
+    name: Plan - ${{ inputs.ad_module }}
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ./infrastructure-ad
+        working-directory: ./${{ inputs.ad_module }}
     
     steps:
     - name: Checkout
@@ -51,7 +62,7 @@ jobs:
         terraform {
           backend "s3" {
             bucket  = "${{ inputs.terraform_bucket }}"
-            key     = "infrastructure-ad/terraform.tfstate"
+            key     = "${{ inputs.ad_module }}/terraform.tfstate"
             region  = "${{ inputs.aws_region }}"
             encrypt = true
           }
@@ -70,18 +81,18 @@ jobs:
     - name: Upload Plan
       uses: actions/upload-artifact@v4
       with:
-        name: terraform-plan
-        path: infrastructure-ad/tfplan
+        name: terraform-plan-${{ inputs.ad_module }}
+        path: ${{ inputs.ad_module }}/tfplan
 
   apply:
-    name: Terraform Apply
+    name: Apply - ${{ inputs.ad_module }}
     runs-on: ubuntu-latest
     needs: plan
     if: ${{ !inputs.destroy }}
     environment: production
     defaults:
       run:
-        working-directory: ./infrastructure-ad
+        working-directory: ./${{ inputs.ad_module }}
     
     steps:
     - name: Checkout
@@ -105,7 +116,7 @@ jobs:
         terraform {
           backend "s3" {
             bucket  = "${{ inputs.terraform_bucket }}"
-            key     = "infrastructure-ad/terraform.tfstate"
+            key     = "${{ inputs.ad_module }}/terraform.tfstate"
             region  = "${{ inputs.aws_region }}"
             encrypt = true
           }
@@ -118,20 +129,20 @@ jobs:
     - name: Download Plan
       uses: actions/download-artifact@v4
       with:
-        name: terraform-plan
-        path: infrastructure-ad/
+        name: terraform-plan-${{ inputs.ad_module }}
+        path: ${{ inputs.ad_module }}/
     
     - name: Terraform Apply
       run: terraform apply tfplan
 
   destroy:
-    name: Terraform Destroy
+    name: Destroy - ${{ inputs.ad_module }}
     runs-on: ubuntu-latest
     if: ${{ inputs.destroy }}
     environment: production
     defaults:
       run:
-        working-directory: ./infrastructure-ad
+        working-directory: ./${{ inputs.ad_module }}
     
     steps:
     - name: Checkout
@@ -155,7 +166,7 @@ jobs:
         terraform {
           backend "s3" {
             bucket  = "${{ inputs.terraform_bucket }}"
-            key     = "infrastructure-ad/terraform.tfstate"
+            key     = "${{ inputs.ad_module }}/terraform.tfstate"
             region  = "${{ inputs.aws_region }}"
             encrypt = true
           }

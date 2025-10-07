@@ -1,8 +1,19 @@
-name: Infrastructure AD Deployment
+name: Deploy Active Directory
 
 on:
   workflow_dispatch:
     inputs:
+      ad_module:
+        description: 'AD module to deploy'
+        required: true
+        type: choice
+        options:
+        - infrastructure-ad
+        - ec2-ad
+        - client-ad
+        - managed-ad
+        - connector-ad
+        - simple-ad
       action:
         description: 'Action to perform'
         required: true
@@ -27,12 +38,12 @@ env:
 
 jobs:
   terraform:
-    name: Terraform ${{ inputs.action }}
+    name: Terraform ${{ inputs.action }} - ${{ inputs.ad_module }}
     runs-on: ubuntu-latest
     
     defaults:
       run:
-        working-directory: ./infrastructure-ad
+        working-directory: ./${{ inputs.ad_module }}
     
     steps:
     - name: Checkout
@@ -56,7 +67,7 @@ jobs:
         terraform {
           backend "s3" {
             bucket  = "${{ inputs.terraform_bucket }}"
-            key     = "infrastructure-ad/terraform.tfstate"
+            key     = "${{ inputs.ad_module }}/terraform.tfstate"
             region  = "${{ inputs.aws_region }}"
             encrypt = true
           }
