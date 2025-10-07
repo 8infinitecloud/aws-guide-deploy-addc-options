@@ -1,5 +1,6 @@
 # AWS Configuration
 aws_region = "us-east-1"
+terraform_bucket = "your-terraform-state-bucket"
 
 # Project Configuration
 project_name = "github-actions-ad"

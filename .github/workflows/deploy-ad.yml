@@ -40,6 +40,7 @@ on:
 env:
   TF_VAR_aws_region: ${{ inputs.aws_region }}
   TF_VAR_key_pair_name: ${{ inputs.key_pair_name }}
+  TF_VAR_terraform_bucket: ${{ inputs.terraform_bucket }}
 
 jobs:
   terraform:

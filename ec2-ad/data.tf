@@ -1,7 +1,9 @@
 # Data sources for base infrastructure
 data "terraform_remote_state" "base" {
-  backend = "local"
+  backend = "s3"
   config = {
-    path = "../infrastructure-ad/terraform.tfstate"
+    bucket = var.terraform_bucket
+    key    = "infrastructure-ad/terraform.tfstate"
+    region = var.aws_region
   }
 }
