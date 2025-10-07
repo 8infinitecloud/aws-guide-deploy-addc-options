@@ -25,3 +25,7 @@ Thumbs.db
 managed-ad/
 connector-ad/
 simple-ad/
+
+# Documentation files
+playbook.md
+build_README.md
