@@ -1,0 +1,63 @@
+name: Setup AWS Resources
+
+on:
+  workflow_dispatch:
+    inputs:
+      terraform_bucket:
+        description: 'S3 bucket name for Terraform state'
+        required: true
+        type: string
+      aws_region:
+        description: 'AWS region'
+        required: true
+        default: 'us-east-1'
+        type: string
+
+jobs:
+  setup:
+    name: Create S3 Bucket and DynamoDB Table
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ inputs.aws_region }}
+    
+    - name: Create S3 bucket
+      run: |
+        if ! aws s3 ls "s3://${{ inputs.terraform_bucket }}" 2>/dev/null; then
+          aws s3 mb s3://${{ inputs.terraform_bucket }} --region ${{ inputs.aws_region }}
+          aws s3api put-bucket-versioning --bucket ${{ inputs.terraform_bucket }} --versioning-configuration Status=Enabled
+          aws s3api put-bucket-encryption --bucket ${{ inputs.terraform_bucket }} --server-side-encryption-configuration '{
+            "Rules": [
+              {
+                "ApplyServerSideEncryptionByDefault": {
+                  "SSEAlgorithm": "AES256"
+                }
+              }
+            ]
+          }'
+          echo "✅ S3 bucket created: ${{ inputs.terraform_bucket }}"
+        else
+          echo "✅ S3 bucket already exists: ${{ inputs.terraform_bucket }}"
+        fi
+    
+    - name: Create DynamoDB table
+      run: |
+        if ! aws dynamodb describe-table --table-name terraform-state-lock --region ${{ inputs.aws_region }} 2>/dev/null; then
+          aws dynamodb create-table \
+            --table-name terraform-state-lock \
+            --attribute-definitions AttributeName=LockID,AttributeType=S \
+            --key-schema AttributeName=LockID,KeyType=HASH \
+            --provisioned-throughput ReadCapacityUnits=5,WriteCapacityUnits=5 \
+            --region ${{ inputs.aws_region }}
+          
+          echo "⏳ Waiting for DynamoDB table to be active..."
+          aws dynamodb wait table-exists --table-name terraform-state-lock --region ${{ inputs.aws_region }}
+          echo "✅ DynamoDB table created: terraform-state-lock"
+        else
+          echo "✅ DynamoDB table already exists: terraform-state-lock"
+        fi

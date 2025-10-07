@@ -21,6 +21,11 @@ on:
         required: true
         default: 'us-east-1'
         type: string
+      skip_lock:
+        description: 'Skip state locking (if DynamoDB table missing)'
+        required: false
+        default: false
+        type: boolean
 
 env:
   TF_VAR_aws_region: ${{ inputs.aws_region }}
@@ -72,12 +77,27 @@ jobs:
     
     - name: Terraform Plan
       if: inputs.action == 'plan'
-      run: terraform plan -var-file="terraform.tfvars"
+      run: |
+        if [ "${{ inputs.skip_lock }}" = "true" ]; then
+          terraform plan -var-file="terraform.tfvars" -lock=false
+        else
+          terraform plan -var-file="terraform.tfvars"
+        fi
     
     - name: Terraform Apply
       if: inputs.action == 'apply'
-      run: terraform apply -var-file="terraform.tfvars" -auto-approve
+      run: |
+        if [ "${{ inputs.skip_lock }}" = "true" ]; then
+          terraform apply -var-file="terraform.tfvars" -auto-approve -lock=false
+        else
+          terraform apply -var-file="terraform.tfvars" -auto-approve
+        fi
     
     - name: Terraform Destroy
       if: inputs.action == 'destroy'
-      run: terraform destroy -var-file="terraform.tfvars" -auto-approve
+      run: |
+        if [ "${{ inputs.skip_lock }}" = "true" ]; then
+          terraform destroy -var-file="terraform.tfvars" -auto-approve -lock=false
+        else
+          terraform destroy -var-file="terraform.tfvars" -auto-approve
+        fi
