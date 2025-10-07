@@ -16,7 +16,7 @@ terraform apply
 
 ### 2. Active Directory en EC2
 ```bash
-cd ad-ec2
+cd ec2-ad
 cp terraform.tfvars.example terraform.tfvars
 # Configurar dominio y credenciales
 terraform init
@@ -44,7 +44,7 @@ key_pair_name = "mi-keypair"
 ad_admin_password = "MiPassword123!"
 ```
 
-### ad-ec2/terraform.tfvars
+### ec2-ad/terraform.tfvars
 ```hcl
 project_name = "mi-ad"
 domain_name = "miempresa.local"

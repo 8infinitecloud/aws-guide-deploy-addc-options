@@ -12,7 +12,7 @@ data "terraform_remote_state" "ad" {
   config = {
     path = var.ad_type == "managed-ad" ? "../managed-ad/terraform.tfstate" : 
            var.ad_type == "simple-ad" ? "../simple-ad/terraform.tfstate" :
-           var.ad_type == "ad-ec2" ? "../ad-ec2/terraform.tfstate" :
+           var.ad_type == "ec2-ad" ? "../ec2-ad/terraform.tfstate" :
            "../connector-ad/terraform.tfstate"
   }
 }

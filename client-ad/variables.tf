@@ -16,11 +16,11 @@ variable "environment" {
 }
 
 variable "ad_type" {
-  description = "Type of Active Directory (managed-ad, simple-ad, connector-ad, ad-ec2)"
+  description = "Type of Active Directory (managed-ad, simple-ad, connector-ad, ec2-ad)"
   type        = string
   validation {
-    condition     = contains(["managed-ad", "simple-ad", "connector-ad", "ad-ec2"], var.ad_type)
-    error_message = "AD type must be one of: managed-ad, simple-ad, connector-ad, ad-ec2."
+    condition     = contains(["managed-ad", "simple-ad", "connector-ad", "ec2-ad"], var.ad_type)
+    error_message = "AD type must be one of: managed-ad, simple-ad, connector-ad, ec2-ad."
   }
 }
 

@@ -6,7 +6,7 @@ project_name = "my-ad-project"
 environment  = "dev"
 
 # Active Directory Configuration
-ad_type                = "ad-ec2"  # Options: managed-ad, simple-ad, connector-ad, ad-ec2
+ad_type                = "ec2-ad"  # Options: managed-ad, simple-ad, connector-ad, ec2-ad
 domain_name            = "example.local"
 domain_admin_username  = "Administrator"
 domain_admin_password  = "MySecurePassword123!"
