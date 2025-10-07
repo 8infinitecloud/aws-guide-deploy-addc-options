@@ -68,7 +68,7 @@ jobs:
         terraform {
           backend "s3" {
             bucket  = "${{ inputs.terraform_bucket }}"
-            key     = "${{ inputs.ad_module }}/terraform.tfstate"
+            key     = "terraform.tfstate"
             region  = "${{ inputs.aws_region }}"
             encrypt = true
           }
@@ -122,7 +122,7 @@ jobs:
         terraform {
           backend "s3" {
             bucket  = "${{ inputs.terraform_bucket }}"
-            key     = "${{ inputs.ad_module }}/terraform.tfstate"
+            key     = "terraform.tfstate"
             region  = "${{ inputs.aws_region }}"
             encrypt = true
           }
@@ -172,7 +172,7 @@ jobs:
         terraform {
           backend "s3" {
             bucket  = "${{ inputs.terraform_bucket }}"
-            key     = "${{ inputs.ad_module }}/terraform.tfstate"
+            key     = "terraform.tfstate"
             region  = "${{ inputs.aws_region }}"
             encrypt = true
           }

@@ -65,6 +65,7 @@ Before running workflows, manually create:
 ## State Management
 
 - Uses **S3 only** for state storage
-- Separate state files per module: `{module}/terraform.tfstate`
+- **Single state file**: `terraform.tfstate` for all modules
 - State files encrypted in S3
 - No DynamoDB locking (simplified for demo)
+- All modules share the same state for easy reference
