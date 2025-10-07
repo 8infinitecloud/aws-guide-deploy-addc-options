@@ -15,7 +15,7 @@ allowed_cidr_blocks    = ["0.0.0.0/0"]
 # Bastion Host Configuration
 bastion_ami_id         = "ami-0c02fb55956c7d316"  # Amazon Linux 2
 bastion_instance_type  = "t3.micro"
-key_pair_name          = "github-actions-keypair"
+key_pair_name          = ""  # Leave empty if no key pair available
 
 # Active Directory Configuration
 domain_name        = "example.local"

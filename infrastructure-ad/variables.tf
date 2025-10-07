@@ -58,8 +58,9 @@ variable "bastion_instance_type" {
 }
 
 variable "key_pair_name" {
-  description = "EC2 Key Pair name for bastion host"
+  description = "EC2 Key Pair name for bastion host (leave empty to skip)"
   type        = string
+  default     = ""
 }
 
 variable "domain_name" {
