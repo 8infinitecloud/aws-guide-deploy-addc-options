@@ -12,10 +12,17 @@ on:
         required: true
         default: 'us-east-1'
         type: string
+      key_pair_name:
+        description: 'EC2 Key Pair name (leave empty to skip)'
+        required: false
+        type: string
       confirm_cleanup:
         description: 'Type "DELETE-ALL" to confirm complete cleanup'
         required: true
         type: string
+
+env:
+  TF_VAR_key_pair_name: ${{ inputs.key_pair_name }}
 
 jobs:
   cleanup:

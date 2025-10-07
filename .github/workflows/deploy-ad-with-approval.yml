@@ -23,6 +23,10 @@ on:
         required: true
         default: 'us-east-1'
         type: string
+      key_pair_name:
+        description: 'EC2 Key Pair name (leave empty to skip)'
+        required: false
+        type: string
       destroy:
         description: 'Destroy infrastructure'
         required: false
@@ -31,6 +35,7 @@ on:
 
 env:
   TF_VAR_aws_region: ${{ inputs.aws_region }}
+  TF_VAR_key_pair_name: ${{ inputs.key_pair_name }}
 
 jobs:
   plan:
