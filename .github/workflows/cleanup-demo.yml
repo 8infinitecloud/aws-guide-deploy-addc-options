@@ -1,0 +1,114 @@
+name: Complete Demo Cleanup
+
+on:
+  workflow_dispatch:
+    inputs:
+      terraform_bucket:
+        description: 'S3 bucket for Terraform state'
+        required: true
+        type: string
+      aws_region:
+        description: 'AWS region'
+        required: true
+        default: 'us-east-1'
+        type: string
+      confirm_cleanup:
+        description: 'Type "DELETE-ALL" to confirm complete cleanup'
+        required: true
+        type: string
+
+jobs:
+  cleanup:
+    name: Complete Cleanup
+    runs-on: ubuntu-latest
+    if: ${{ inputs.confirm_cleanup == 'DELETE-ALL' }}
+    
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+    
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v3
+      with:
+        terraform_version: 1.6.0
+    
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ inputs.aws_region }}
+
+    # Destroy in reverse order
+    - name: Destroy client-ad
+      continue-on-error: true
+      working-directory: ./client-ad
+      run: |
+        cat > backend.tf << EOF
+        terraform {
+          backend "s3" {
+            bucket  = "${{ inputs.terraform_bucket }}"
+            key     = "client-ad/terraform.tfstate"
+            region  = "${{ inputs.aws_region }}"
+            encrypt = true
+          }
+        }
+        EOF
+        terraform init
+        terraform destroy -var-file="terraform.tfvars" -auto-approve
+
+    - name: Destroy ec2-ad
+      continue-on-error: true
+      working-directory: ./ec2-ad
+      run: |
+        cat > backend.tf << EOF
+        terraform {
+          backend "s3" {
+            bucket  = "${{ inputs.terraform_bucket }}"
+            key     = "ec2-ad/terraform.tfstate"
+            region  = "${{ inputs.aws_region }}"
+            encrypt = true
+          }
+        }
+        EOF
+        terraform init
+        terraform destroy -var-file="terraform.tfvars" -auto-approve
+
+    - name: Destroy infrastructure-ad
+      continue-on-error: true
+      working-directory: ./infrastructure-ad
+      run: |
+        cat > backend.tf << EOF
+        terraform {
+          backend "s3" {
+            bucket  = "${{ inputs.terraform_bucket }}"
+            key     = "infrastructure-ad/terraform.tfstate"
+            region  = "${{ inputs.aws_region }}"
+            encrypt = true
+          }
+        }
+        EOF
+        terraform init
+        terraform destroy -var-file="terraform.tfvars" -auto-approve
+
+    - name: Clean up remaining resources
+      continue-on-error: true
+      run: |
+        echo "🧹 Cleaning up any remaining resources..."
+        
+        # Delete any remaining backup recovery points
+        aws backup list-recovery-points-by-backup-vault --backup-vault-name "${{ inputs.terraform_bucket }}-*" --query 'RecoveryPoints[].RecoveryPointArn' --output text 2>/dev/null | while read arn; do
+          if [ ! -z "$arn" ]; then
+            aws backup delete-recovery-point --backup-vault-name $(echo $arn | cut -d':' -f6) --recovery-point-arn $arn 2>/dev/null || true
+          fi
+        done
+        
+        # Force delete S3 buckets with objects
+        aws s3 ls | grep "${{ inputs.terraform_bucket }}" | awk '{print $3}' | while read bucket; do
+          if [ ! -z "$bucket" ]; then
+            aws s3 rm s3://$bucket --recursive 2>/dev/null || true
+            aws s3 rb s3://$bucket --force 2>/dev/null || true
+          fi
+        done
+        
+        echo "✅ Cleanup completed"

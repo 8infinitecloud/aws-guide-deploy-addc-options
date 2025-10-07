@@ -8,6 +8,11 @@ resource "aws_kms_key" "backup_key" {
   }
 }
 
+resource "aws_kms_alias" "backup_key" {
+  name          = "alias/${var.project_name}-backup-key"
+  target_key_id = aws_kms_key.backup_key.key_id
+}
+
 # AWS Backup Vault
 resource "aws_backup_vault" "dc_backup_vault" {
   name        = "${var.project_name}-dc-backup-vault"
@@ -29,7 +34,7 @@ resource "aws_backup_plan" "dc_backup_plan" {
 
     lifecycle {
       cold_storage_after = 30
-      delete_after       = 365
+      delete_after       = 90  # Reduced from 365 for demo
     }
 
     recovery_point_tags = {
@@ -50,4 +55,8 @@ resource "aws_backup_selection" "dc_backup_selection" {
   plan_id      = aws_backup_plan.dc_backup_plan.id
 
   resources = aws_instance.domain_controller[*].arn
+
+  tags = {
+    Name = "${var.project_name}-dc-backup-selection"
+  }
 }

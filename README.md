@@ -212,6 +212,32 @@ safe_mode_password = "MiSafeModePassword123!"
 - ✅ Políticas de backup activas
 - ✅ Replicación entre DCs verificada
 
+## 🗑️ Limpieza Completa del Demo
+
+### Workflow de Limpieza Automática
+1. Ir a **Actions** → **Complete Demo Cleanup**
+2. Escribir **"DELETE-ALL"** para confirmar
+3. Proporcionar bucket S3 y región
+4. Ejecutar - elimina todo en orden correcto
+
+### Limpieza Manual (Orden inverso)
+```bash
+# 1. client-ad
+cd client-ad && terraform destroy -auto-approve
+
+# 2. ec2-ad  
+cd ../ec2-ad && terraform destroy -auto-approve
+
+# 3. infrastructure-ad
+cd ../infrastructure-ad && terraform destroy -auto-approve
+```
+
+### ⚠️ Configuración para Demo
+- **S3 buckets**: `force_destroy = true`
+- **KMS keys**: Eliminación en 7 días
+- **Backups**: Retención 90 días (vs 365)
+- **Todos los recursos**: Completamente eliminables
+
 ## 🤝 Contribución
 
 1. Fork el repositorio
